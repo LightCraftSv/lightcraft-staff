@@ -1,0 +1,42 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isStaff() { return request.auth != null && exists(/databases/$(database)/documents/staff/$(request.auth.uid)); }
+    function myRank() { return get(/databases/$(database)/documents/staff/$(request.auth.uid)).data.rank; }
+    function isOwner() { return isStaff() && myRank() == 'OWNER'; }
+    function isCo() { return isStaff() && myRank() == 'CO-OWNER'; }
+
+    // لیست استف: همه‌ی استف‌ها می‌بینند، فقط اونر تغییر می‌دهد، اونر را نمی‌شود تغییر داد یا حذف کرد
+    match /staff/{uid} {
+      allow read: if isStaff();
+      allow create: if isOwner() && request.resource.data.rank != 'OWNER';
+      allow update: if (isOwner() && resource.data.rank != 'OWNER')
+        || (request.auth.uid == uid
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['tmp'])
+            && request.resource.data.tmp == false);
+      allow delete: if isOwner() && resource.data.rank != 'OWNER';
+    }
+
+    // کد ملی و تاریخ تولد: فقط اونر و خود شخص
+    match /staffPrivate/{uid} {
+      allow read: if isOwner() || (isStaff() && request.auth.uid == uid);
+      allow write: if isOwner();
+    }
+
+    // درخواست‌های co-owner: co-owner فقط می‌سازد، اونر قبول یا رد می‌کند
+    match /requests/{id} {
+      allow read: if isOwner() || isCo();
+      allow create: if isCo()
+        && request.resource.data.by == request.auth.uid
+        && request.resource.data.status == 'pending'
+        && !(get(/databases/$(database)/documents/staff/$(request.resource.data.targetUid)).data.rank in ['OWNER', 'CO-OWNER']);
+      allow update, delete: if isOwner();
+    }
+
+    // تاریخچه: همه‌ی استف‌ها می‌بینند، فقط اونر می‌نویسد
+    match /history/{id} {
+      allow read: if isStaff();
+      allow create: if isOwner();
+    }
+  }
+}
