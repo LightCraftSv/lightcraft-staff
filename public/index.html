@@ -1,13 +1,310 @@
-
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="fa" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LightCraft Staff</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LightCraft Staff</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;800;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#150a2e;--panel:#241247;--line:#3d2377;--ink:#f4eeff;--mute:#a99bc9;--gold:#c9a24a}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Vazirmatn',Tahoma,sans-serif;padding:20px 16px 48px}
+[hidden]{display:none!important}
+.wrap{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+h1,h2{margin:0}
+.logo{font-family:'Press Start 2P',monospace;font-size:20px;background:linear-gradient(90deg,#c79bff,#a8e6ff);-webkit-background-clip:text;background-clip:text;color:transparent;direction:ltr}
+.bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.bar .sp{flex:1}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+label{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--mute)}
+input,select,textarea{font:inherit;font-size:16px;min-height:44px;padding:8px 12px;border-radius:8px;border:1px solid #4b2e8a;background:#1a0d38;color:var(--ink);width:100%}
+button{font:inherit;font-weight:800;font-size:15px;min-height:40px;padding:0 16px;border:0;border-radius:8px;cursor:pointer;background:var(--gold);color:#1e0e40}
+button.sec{background:#3a2370;color:var(--ink)}
+button.dng{background:#b33a4a;color:#fff}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #a8e6ff;outline-offset:2px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap}
+.tabs button{background:#2c1a57;color:var(--ink)}
+.tabs button.on{background:var(--gold);color:#1e0e40}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:640px){.grid{grid-template-columns:1fr 1fr}}
+@media(max-width:420px){.grid{grid-template-columns:1fr}}
+.login{max-width:380px;margin:12vh auto 0;display:flex;flex-direction:column;gap:14px}
+.row{display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.row:last-child{border-bottom:0}
+.nm{font-weight:800;font-size:17px;flex:1 1 150px}
+.nm small{display:block;font-weight:400;color:var(--mute);font-size:13px}
+.chip{padding:3px 8px;color:#1a1a1a;font-family:'Press Start 2P',monospace;font-size:9px;line-height:1.4;direction:ltr}
+.warn{font-weight:800;min-width:70px;text-align:center}
+.b{display:flex;gap:6px;flex-wrap:wrap}
+.b button{min-height:34px;padding:0 10px;font-size:13px}
+.msg{font-size:13px;color:var(--mute)}
+.err{color:#ff9aa8}
+dialog{background:var(--panel);color:var(--ink);border:1px solid var(--gold);border-radius:12px;padding:18px;max-width:min(92vw,720px);width:100%}
+dialog::backdrop{background:rgba(10,4,24,.8)}
+.cv{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.cv{grid-template-columns:1fr}}
+.cv>div{display:flex;flex-direction:column;gap:8px}
+canvas{width:100%;height:auto;border-radius:6px;display:block}
+.acts{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+</style>
 </head>
 <body>
-  <h1>LightCraft Staff</h1>
-  <p>Staff panel is loading...</p>
+<div class="wrap">
+
+<div id="vLogin" class="login panel" hidden>
+<div class="logo">LightCraft</div>
+<h2>ورود استف</h2>
+<label>یوزر<input id="lu" dir="ltr" autocomplete="username"></label>
+<label>پسورد<input id="lp" type="password" dir="ltr" autocomplete="current-password"></label>
+<button id="lb" type="button">ورود</button>
+<div id="le" class="msg err"></div>
+</div>
+
+<div id="vApp" hidden>
+<div class="bar"><div class="logo">LightCraft</div><div class="sp"></div><span id="who" class="msg"></span><button id="out" class="sec" type="button">خروج</button></div>
+<div class="tabs" id="tabs"></div>
+
+<div id="pStaff" class="panel"></div>
+<div id="pReq" class="panel" hidden></div>
+<div id="pHist" class="panel" hidden></div>
+<div id="pAdd" class="panel" hidden>
+<h2>افزودن استف</h2>
+<div class="grid" style="margin-top:12px">
+<label>نام و نام خانوادگی<input id="an"></label>
+<label>یوزر (حروف انگلیسی)<input id="au" dir="ltr" autocapitalize="none"></label>
+<label>پسورد موقت (حداقل ۶ حرف)<input id="ap" dir="ltr"></label>
+<label>کد ملی<input id="ai" inputmode="numeric"></label>
+<label>تاریخ تولد<input id="ab" placeholder="۱۴۰۰/۰۱/۰۱"></label>
+<label>رتبه<select id="ar"></select></label>
+</div>
+<div class="acts"><button id="as" type="button">ساخت اکانت</button><span id="am" class="msg"></span></div>
+</div>
+<div id="pSet" class="panel" hidden>
+<h2>تغییر پسورد</h2>
+<div class="grid" style="margin-top:12px"><label>پسورد جدید<input id="np" type="password" dir="ltr" autocomplete="new-password"></label></div>
+<div class="acts"><button id="npb" type="button">ذخیره پسورد</button><span id="npm" class="msg"></span></div>
+</div>
+</div>
+</div>
+
+<dialog id="dAsk"><h2 id="dt"></h2><label style="margin-top:12px">دلیل<textarea id="dr" rows="3"></textarea></label>
+<div class="acts"><button id="dok" type="button">تایید</button><button id="dno" class="sec" type="button">انصراف</button></div></dialog>
+
+<dialog id="dCard"><div class="cv"><div><canvas id="cf"></canvas><button id="df" type="button">دانلود روی کارت</button></div><div id="bw"><canvas id="cb"></canvas><button id="db2" type="button">دانلود پشت کارت</button></div></div>
+<div class="msg" id="dm" style="margin-top:10px"></div><div class="acts"><button id="dc" class="sec" type="button">بستن</button></div></dialog>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import {getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged,createUserWithEmailAndPassword,updatePassword} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import {getFirestore,doc,getDoc,setDoc,updateDoc,collection,onSnapshot,query,where,orderBy,limit,addDoc,writeBatch,serverTimestamp,increment} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+import {firebaseConfig} from "./firebase-config.js";
+
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
+const DOM="@staff.lightcraft.app";
+const R=[["HELPER","#7BD66B"],["H-HELPER","#3FA34D"],["MOD","#5DB7FF"],["H-MOD","#2F7FD1"],["ADMIN","#FF6B6B"],["H-ADMIN","#C93B3B"],["SUPERVISOR","#B58CFF"],["H-SUPERVISOR","#8A5CE0"],["MANAGER","#FFA94D"],["H-MANAGER","#D9772A"],["DEVELOPER","#4FE3C1"],["H-DEVELOPER","#20A58A"],["CO-OWNER","#FFD34E"],["OWNER","#FF8AD8"]];
+const RC={},RI={};R.forEach((r,i)=>{RC[r[0]]=r[1];RI[r[0]]=i;});
+const MAXW=3;
+const $=i=>document.getElementById(i);
+const h=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;};
+const TYPES={rankup:"رنک‌آپ",rankdown:"رنک‌داون",warn:"وارن",unwarn:"برداشتن وارن",fire:"اخراج"};
+
+let me=null,staff=[],reqs=[],hist=[],unsubs=[],tab="staff",loginMsg="";
+const isOwner=()=>me&&me.rank==="OWNER", isCo=()=>me&&me.rank==="CO-OWNER";
+
+R.slice(0,13).forEach(r=>{const o=h("option","",r[0]);o.value=r[0];$("ar").appendChild(o);});
+
+/* ---------- ورود و خروج ---------- */
+$("lb").onclick=async()=>{
+ const u=$("lu").value.trim().toLowerCase(),p=$("lp").value;$("le").textContent="";
+ if(!u||!p){$("le").textContent="یوزر و پسورد را بنویس.";return;}
+ try{await signInWithEmailAndPassword(auth,u+DOM,p);}catch(e){$("le").textContent="یوزر یا پسورد اشتباه است.";}
+};
+$("lp").addEventListener("keydown",e=>{if(e.key==="Enter")$("lb").click();});
+$("out").onclick=()=>signOut(auth);
+
+function stopAll(){unsubs.forEach(f=>f());unsubs=[];me=null;staff=[];reqs=[];hist=[];}
+onAuthStateChanged(auth,user=>{
+ stopAll();
+ if(!user){$("vApp").hidden=true;$("vLogin").hidden=false;$("le").textContent=loginMsg;loginMsg="";return;}
+ // اگر سند استف او پاک شود، همان لحظه بیرون انداخته می‌شود
+ unsubs.push(onSnapshot(doc(db,"staff",user.uid),snap=>{
+  if(!snap.exists()){loginMsg="این اکانت دیگر استف نیست.";signOut(auth);return;}
+  const first=!me;me=Object.assign({id:snap.id},snap.data());
+  if(first){start();}else{drawAll();}
+ },()=>{loginMsg="دسترسی بسته شد.";signOut(auth);}));
+});
+
+function start(){
+ $("vLogin").hidden=true;$("vApp").hidden=false;
+ unsubs.push(onSnapshot(collection(db,"staff"),s=>{staff=s.docs.map(d=>Object.assign({id:d.id},d.data()));drawAll();},()=>{}));
+ unsubs.push(onSnapshot(query(collection(db,"history"),orderBy("at","desc"),limit(60)),s=>{hist=s.docs.map(d=>d.data());drawAll();},()=>{}));
+ if(isOwner()||isCo())unsubs.push(onSnapshot(query(collection(db,"requests"),where("status","==","pending")),s=>{reqs=s.docs.map(d=>Object.assign({id:d.id},d.data()));drawAll();},()=>{}));
+ tab=me.tmp?"set":"staff";drawAll();
+}
+
+/* ---------- نمایش ---------- */
+function drawTabs(){
+ const t=$("tabs");t.textContent="";
+ const items=[["staff","کارکنان"]];
+ if(isOwner()||isCo())items.push(["req","درخواست‌ها"+(reqs.length?" ("+reqs.length+")":"")]);
+ items.push(["hist","تاریخچه"]);
+ if(isOwner())items.push(["add","افزودن استف"]);
+ items.push(["set","پسورد من"]);
+ items.forEach(i=>{const b=h("button",tab===i[0]?"on":"",i[1]);b.onclick=()=>{tab=i[0];drawAll();};t.appendChild(b);});
+}
+function drawAll(){
+ if(!me)return;
+ $("who").textContent=me.name+" · "+me.rank;
+ drawTabs();
+ [["staff","pStaff"],["req","pReq"],["hist","pHist"],["add","pAdd"],["set","pSet"]].forEach(p=>{$(p[1]).hidden=tab!==p[0];});
+ if(tab==="staff")drawStaff();
+ if(tab==="req")drawReq();
+ if(tab==="hist")drawHist();
+}
+function rankChip(r){const c=h("div","chip",r);c.style.background=RC[r]||"#888";return c;}
+function drawStaff(){
+ const box=$("pStaff");box.textContent="";
+ const a=staff.slice().sort((x,y)=>(RI[y.rank]||0)-(RI[x.rank]||0)||(x.name||"").localeCompare(y.name||""));
+ box.appendChild(h("h2","","کارکنان ("+a.length+")"));
+ a.forEach(s=>{
+  const r=h("div","row"),n=h("div","nm",s.name||"—");n.appendChild(h("small","","@"+s.usr+" · کارت "+(s.cardNum||"")));
+  r.appendChild(n);r.appendChild(rankChip(s.rank));
+  const w=h("div","warn","وارن "+(s.warns||0)+"/"+MAXW);if((s.warns||0)>=MAXW-1)w.style.color="#ff9aa8";r.appendChild(w);
+  const b=h("div","b");
+  if(isOwner()||s.id===me.id){const c=h("button","sec","کارت");c.onclick=()=>openCard(s);b.appendChild(c);}
+  const canAct=(isOwner()&&s.rank!=="OWNER")||(isCo()&&s.rank!=="OWNER"&&s.rank!=="CO-OWNER");
+  if(canAct){
+   ["rankup","rankdown","warn","unwarn","fire"].forEach(t=>{
+    const x=h("button",t==="fire"?"dng":"sec",(isOwner()?"":"درخواست ")+TYPES[t]);
+    x.onclick=()=>doAction(t,s);b.appendChild(x);});
+  }
+  r.appendChild(b);box.appendChild(r);
+ });
+}
+const fmt=ts=>{try{return ts.toDate().toLocaleString("fa-IR");}catch(e){return "";}};
+function drawHist(){
+ const box=$("pHist");box.textContent="";box.appendChild(h("h2","","تاریخچه"));
+ if(!hist.length)box.appendChild(h("div","msg","هنوز چیزی ثبت نشده."));
+ hist.forEach(x=>{const r=h("div","row");r.appendChild(h("div","nm",x.text));r.appendChild(h("div","msg",fmt(x.at)));box.appendChild(r);});
+}
+function drawReq(){
+ const box=$("pReq");box.textContent="";box.appendChild(h("h2","","درخواست‌های در انتظار"));
+ if(!reqs.length)box.appendChild(h("div","msg","درخواستی در انتظار نیست."));
+ reqs.forEach(q=>{
+  const r=h("div","row"),n=h("div","nm",TYPES[q.type]+": "+q.targetName);n.appendChild(h("small","","از طرف "+q.byName+(q.reason?" · "+q.reason:"")));r.appendChild(n);
+  if(isOwner()){const b=h("div","b"),ok=h("button","","قبول"),no=h("button","dng","رد");ok.onclick=()=>acceptReq(q);no.onclick=()=>updateDoc(doc(db,"requests",q.id),{status:"rejected"});b.appendChild(ok);b.appendChild(no);r.appendChild(b);}
+  box.appendChild(r);
+ });
+}
+
+/* ---------- اجرای کارها ---------- */
+function ask(title,needReason){
+ return new Promise(res=>{const d=$("dAsk");$("dt").textContent=title;$("dr").value="";
+  const done=v=>{d.close();res(v);};$("dok").onclick=()=>done($("dr").value.trim());$("dno").onclick=()=>done(null);d.onclose=null;d.showModal();});
+}
+async function doAction(type,t){
+ const reason=await ask(TYPES[type]+": "+t.name);if(reason===null)return;
+ if(isOwner()){try{await perform(type,t,reason);}catch(e){alert("انجام نشد: "+(e.code||e.message));}}
+ else{try{await addDoc(collection(db,"requests"),{type,targetUid:t.id,targetName:t.name,reason,by:me.id,byName:me.name,status:"pending",at:serverTimestamp()});alert("درخواست ثبت شد و منتظر تایید اونر است.");}catch(e){alert("ثبت نشد: "+(e.code||e.message));}}
+}
+const log=(text)=>addDoc(collection(db,"history"),{text,by:me.name,at:serverTimestamp()});
+async function perform(type,t,reason){
+ const why=reason?" ("+reason+")":"";
+ if(type==="rankup"){const i=RI[t.rank];if(i>=RI["CO-OWNER"])throw{message:"بالاتر از co-owner ممکن نیست"};const nr=R[i+1][0];await updateDoc(doc(db,"staff",t.id),{rank:nr});await log(t.name+" رنک‌آپ شد: "+t.rank+" ← "+nr+why);}
+ else if(type==="rankdown"){const i=RI[t.rank];if(i<=0)throw{message:"پایین‌تر از helper ممکن نیست؛ اخراج را بزن"};const nr=R[i-1][0];await updateDoc(doc(db,"staff",t.id),{rank:nr});await log(t.name+" رنک‌داون شد: "+t.rank+" ← "+nr+why);}
+ else if(type==="unwarn"){if((t.warns||0)<=0)return;await updateDoc(doc(db,"staff",t.id),{warns:increment(-1)});await log("یک وارن از "+t.name+" برداشته شد"+why);}
+ else if(type==="warn"){
+  if((t.warns||0)+1>=MAXW){await fire(t,"به‌خاطر رسیدن به "+MAXW+" وارن اخراج شد"+why);}
+  else{await updateDoc(doc(db,"staff",t.id),{warns:increment(1)});await log(t.name+" وارن گرفت ("+((t.warns||0)+1)+"/"+MAXW+")"+why);}
+ }
+ else if(type==="fire"){await fire(t,"اخراج شد"+why);}
+}
+async function fire(t,text){
+ const b=writeBatch(db);
+ b.delete(doc(db,"staff",t.id));b.delete(doc(db,"staffPrivate",t.id));
+ b.set(doc(collection(db,"history")),{text:t.name+" "+text,by:me.name,at:serverTimestamp()});
+ await b.commit();
+}
+async function acceptReq(q){
+ const t=staff.find(s=>s.id===q.targetUid);
+ try{
+  if(!t){await updateDoc(doc(db,"requests",q.id),{status:"rejected"});return;}
+  await perform(q.type,t,(q.reason||"")+" [درخواست "+q.byName+"]");
+  await updateDoc(doc(db,"requests",q.id),{status:"accepted"});
+ }catch(e){alert("انجام نشد: "+(e.code||e.message));}
+}
+
+/* ---------- افزودن استف ---------- */
+$("as").onclick=async()=>{
+ const name=$("an").value.trim(),usr=$("au").value.trim().toLowerCase(),pwd=$("ap").value,nid=$("ai").value.trim(),bd=$("ab").value.trim(),rank=$("ar").value;
+ const m=$("am");m.className="msg";
+ if(!name||!/^[a-z0-9_]{3,20}$/.test(usr)||pwd.length<6){m.textContent="اسم، یوزر انگلیسی (۳ تا ۲۰ حرف) و پسورد حداقل ۶ حرفی لازم است.";return;}
+ if(staff.some(s=>s.usr===usr)){m.textContent="این یوزر قبلاً هست.";return;}
+ m.textContent="در حال ساخت...";
+ try{
+  const app2=initializeApp(firebaseConfig,"second"+Date.now()),a2=getAuth(app2);
+  const cred=await createUserWithEmailAndPassword(a2,usr+DOM,pwd);const uid=cred.user.uid;await signOut(a2);
+  let mx=0;staff.forEach(s=>{const n=parseInt(s.cardNum,10);if(n>mx)mx=n;});
+  const cardNum=String(mx+1).padStart(3,"0");
+  await setDoc(doc(db,"staff",uid),{name,usr,rank,warns:0,cardNum,tmp:true,createdAt:serverTimestamp()});
+  await setDoc(doc(db,"staffPrivate",uid),{nid,bd});
+  await log(name+" به عنوان "+rank+" اضافه شد");
+  ["an","au","ap","ai","ab"].forEach(i=>$(i).value="");m.textContent="ساخته شد.";
+  openCard({name,usr,rank,cardNum,nid,bd},pwd);
+ }catch(e){m.className="msg err";m.textContent="ساخته نشد: "+(e.code||e.message);}
+};
+
+/* ---------- پسورد من ---------- */
+$("npb").onclick=async()=>{
+ const p=$("np").value,m=$("npm");
+ if(p.length<6){m.textContent="حداقل ۶ حرف.";return;}
+ try{await updatePassword(auth.currentUser,p);if(me.tmp)await updateDoc(doc(db,"staff",me.id),{tmp:false});$("np").value="";m.textContent="پسورد عوض شد.";}
+ catch(e){m.textContent=e.code==="auth/requires-recent-login"?"یک بار خارج شو و دوباره وارد شو، بعد عوضش کن.":"عوض نشد: "+(e.code||e.message);}
+};
+
+/* ---------- کارت (PNG) ---------- */
+const img=new Image();const imgReady=new Promise(r=>{img.onload=r;img.onerror=r;img.src="logo.webp";});
+function base(){const S=2,W=630,H=660,c=document.createElement("canvas");c.width=W*S;c.height=H*S;const x=c.getContext("2d");x.scale(S,S);
+ const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,"#3a1b72");g.addColorStop(1,"#1e0e40");x.fillStyle=g;x.fillRect(0,0,W,H);
+ x.strokeStyle="#c9a24a";x.lineWidth=6;x.strokeRect(3,3,W-6,H-6);return [c,x];}
+function front(s){
+ const [c,x]=base(),v=s.rank;
+ x.font='11px "Press Start 2P"';x.fillStyle="#ffd34e";x.direction="ltr";x.textAlign="left";x.fillText("STAFF",38,50);x.textAlign="right";x.fillText("ID "+(s.cardNum||""),592,50);
+ x.fillStyle="#c9a24a";x.fillRect(230,84,170,170);try{x.drawImage(img,234,88,162,162);}catch(e){}
+ x.font='30px "Press Start 2P"';const lg=x.createLinearGradient(165,0,465,0);lg.addColorStop(0,"#c79bff");lg.addColorStop(1,"#a8e6ff");x.fillStyle=lg;x.textAlign="center";x.fillText("LightCraft",315,300);
+ const items=[["نام و نام خانوادگی",s.name||""],["کد ملی",s.nid||""],["تاریخ تولد",s.bd||""]];
+ x.direction="rtl";x.textAlign="right";let cx=592,cy=350;
+ items.forEach(it=>{x.font="400 13px Vazirmatn";const w1=x.measureText(it[0]).width;x.font="800 22px Vazirmatn";const w2=x.measureText(it[1]).width;const w=Math.max(w1,w2);
+  if(cx-w<38&&cx<592){cx=592;cy+=77;}
+  x.font="400 13px Vazirmatn";x.fillStyle="#b9a9dd";x.fillText(it[0],cx,cy+14);x.font="800 22px Vazirmatn";x.fillStyle="#f4eeff";x.fillText(it[1],cx,cy+46);cx-=w+36;});
+ x.direction="ltr";x.textAlign="left";x.font='9px "Press Start 2P"';
+ const pos=[];let cp=38,row=0;const ch=19;
+ R.forEach(r=>{const w=x.measureText(r[0]).width+16;if(cp+w>592&&cp>38){cp=38;row++;}pos.push([r,cp,row,w]);cp+=w+6;});
+ const hh=(row+1)*ch+row*6,top=622-hh;
+ x.direction="rtl";x.textAlign="right";x.font="400 13px Vazirmatn";x.fillStyle="#b9a9dd";x.fillText("رتبه‌های کارکنان",592,top-14);
+ x.direction="ltr";x.textAlign="left";x.font='9px "Press Start 2P"';
+ pos.forEach(p=>{const y=top+p[2]*(ch+6);x.globalAlpha=(v&&p[0][0]!==v)?0.3:1;x.fillStyle=p[0][1];x.fillRect(p[1],y,p[3],ch);x.fillStyle="#1a1a1a";x.fillText(p[0][0],p[1]+8,y+14);
+  if(v&&p[0][0]===v){x.strokeStyle="#fff";x.lineWidth=3;x.strokeRect(p[1]-3.5,y-3.5,p[3]+7,ch+7);}});
+ x.globalAlpha=1;return c;}
+function back(s,pwd){
+ const [c,x]=base();
+ x.direction="rtl";x.textAlign="right";x.font="800 24px Vazirmatn";x.fillStyle="#ffd34e";x.fillText("لاگین:",592,62);x.textAlign="center";
+ const blk=(l,v,y)=>{x.direction="rtl";x.font="400 14px Vazirmatn";x.fillStyle="#b9a9dd";x.fillText(l,315,y);x.direction="ltr";x.font="800 28px Vazirmatn";x.fillStyle="#f4eeff";x.fillText(v,315,y+40);};
+ blk("یوزر",s.usr||"",300);blk("پسورد موقت",pwd,540);return c;}
+const paint=(id,src)=>{const d=$(id);d.width=src.width;d.height=src.height;d.getContext("2d").drawImage(src,0,0);};
+let cardCtx=null;
+async function openCard(s,pwd){
+ let d=s;
+ if(!pwd&&(s.nid===undefined)){try{const p=await getDoc(doc(db,"staffPrivate",s.id));if(p.exists())d=Object.assign({},s,p.data());}catch(e){}}
+ await Promise.all([imgReady,document.fonts.load('9px "Press Start 2P"',"STAFF"),document.fonts.load("800 22px Vazirmatn","علی"),document.fonts.load("400 13px Vazirmatn","رتبه")]);
+ cardCtx={s:d,pwd};paint("cf",front(d));$("bw").hidden=!pwd;if(pwd)paint("cb",back(d,pwd));
+ $("dm").textContent=pwd?"این پسورد موقت فقط همین یک بار نشان داده می‌شود. کارت را ذخیره کن و به استف بده.":"";
+ $("dCard").showModal();
+}
+function save(c,name){c.toBlob(b=>{const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000);},"image/png");}
+$("df").onclick=()=>save(front(cardCtx.s),"LightCraft-"+cardCtx.s.rank+"-"+cardCtx.s.cardNum+"-front.png");
+$("db2").onclick=()=>save(back(cardCtx.s,cardCtx.pwd),"LightCraft-"+cardCtx.s.cardNum+"-back.png");
+$("dc").onclick=()=>{$("dCard").close();cardCtx=null;};
+</script>
 </body>
 </html>
